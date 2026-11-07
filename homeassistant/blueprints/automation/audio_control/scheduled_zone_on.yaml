@@ -9,8 +9,8 @@ blueprint:
     accept further commands for it; without the delay the first command is
     often dropped.
   domain: automation
-  author: mcjel
-  source_url: https://github.com/mcjel/mcjel-homeassistant/blob/master/homeassistant/blueprints/automation/audio_control/scheduled_zone_on.yaml
+  author: McJEL, LLC
+  source_url: https://github.com/mcjelcom/ha-audio-control/blob/main/blueprints/automation/audio_control/scheduled_zone_on.yaml
   input:
     zone:
       name: Zone

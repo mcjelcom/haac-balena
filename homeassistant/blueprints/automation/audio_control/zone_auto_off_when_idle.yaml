@@ -8,8 +8,8 @@ blueprint:
     It does not detect whether audio is actually playing — most RS232 amplifiers
     report power and volume but not signal presence.
   domain: automation
-  author: mcjel
-  source_url: https://github.com/mcjel/mcjel-homeassistant/blob/master/homeassistant/blueprints/automation/audio_control/zone_auto_off_when_idle.yaml
+  author: McJEL, LLC
+  source_url: https://github.com/mcjelcom/ha-audio-control/blob/main/blueprints/automation/audio_control/zone_auto_off_when_idle.yaml
   input:
     zone:
       name: Zone

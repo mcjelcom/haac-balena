@@ -6,8 +6,8 @@ blueprint:
     sends a single all-off command to the amplifier rather than one command
     per zone.
   domain: automation
-  author: mcjel
-  source_url: https://github.com/mcjel/mcjel-homeassistant/blob/master/homeassistant/blueprints/automation/audio_control/all_zones_off_at_time.yaml
+  author: McJEL, LLC
+  source_url: https://github.com/mcjelcom/ha-audio-control/blob/main/blueprints/automation/audio_control/all_zones_off_at_time.yaml
   input:
     off_time:
       name: Time

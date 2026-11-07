@@ -9,8 +9,8 @@ blueprint:
     support them, including the AMC X-Series). On a device without tone support
     the service call will fail and the automation will log an error.
   domain: automation
-  author: mcjel
-  source_url: https://github.com/mcjel/mcjel-homeassistant/blob/master/homeassistant/blueprints/automation/audio_control/tone_preset_on_source.yaml
+  author: McJEL, LLC
+  source_url: https://github.com/mcjelcom/ha-audio-control/blob/main/blueprints/automation/audio_control/tone_preset_on_source.yaml
   input:
     zone:
       name: Zone

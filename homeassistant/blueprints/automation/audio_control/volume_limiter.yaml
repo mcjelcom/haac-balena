@@ -8,8 +8,8 @@ blueprint:
     Note this reacts after the fact rather than preventing the change, so a
     brief loud moment is still possible. Set the limit with that in mind.
   domain: automation
-  author: mcjel
-  source_url: https://github.com/mcjel/mcjel-homeassistant/blob/master/homeassistant/blueprints/automation/audio_control/volume_limiter.yaml
+  author: McJEL, LLC
+  source_url: https://github.com/mcjelcom/ha-audio-control/blob/main/blueprints/automation/audio_control/volume_limiter.yaml
   input:
     zones:
       name: Zones

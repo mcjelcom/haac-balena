@@ -9,8 +9,8 @@ blueprint:
     supply. Create one under Settings > Devices & Services > Helpers > Toggle
     if you do not already have a suitable switch.
   domain: automation
-  author: mcjel
-  source_url: https://github.com/mcjel/mcjel-homeassistant/blob/master/homeassistant/blueprints/automation/audio_control/group_mode_toggle.yaml
+  author: McJEL, LLC
+  source_url: https://github.com/mcjelcom/ha-audio-control/blob/main/blueprints/automation/audio_control/group_mode_toggle.yaml
   input:
     toggle_entity:
       name: Toggle
