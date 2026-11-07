@@ -1,0 +1,24 @@
+name: Audio Control for Home Assistant
+description: >-
+  Home Assistant with the Audio Control integration pre-installed: control
+  RS232 and network multi-zone amplifiers (AMC, Rotel, Xantech, Monoprice,
+  Russound and more) from Home Assistant. Plug in a USB-to-RS232 adapter and add
+  your amplifier.
+type: sw.application
+assets:
+  repository:
+    type: blob.asset
+    data:
+      url: "https://github.com/mcjelcom/haac-balena"
+  logo:
+    type: blob.asset
+    data:
+      url: "https://raw.githubusercontent.com/mcjelcom/haac-balena/main/logo.png"
+data:
+  applicationEnvironmentVariables: []
+  defaultDeviceType: raspberrypi4-64
+  supportedDeviceTypes:
+    - raspberrypi4-64
+    - raspberrypi5
+    - raspberrypi3-64
+version: 1.0.0

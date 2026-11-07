@@ -1,0 +1,21 @@
+version: "2.1"
+
+# Home Assistant with the Audio Control integration pre-installed.
+# Docs: https://haac.mcjel.com/getting-started/install-balena/
+
+volumes:
+  config:
+
+services:
+  homeassistant:
+    build: ./homeassistant
+    # Host networking: Home Assistant discovers devices on your network
+    # (mDNS/SSDP) and is reached at http://<device-ip>:8123 on your LAN only.
+    # Nothing else is exposed: no SSH, file editor or other services.
+    network_mode: host
+    # Lets Home Assistant see any USB-to-RS232 adapter you plug in (any name,
+    # including /dev/serial/by-id/...), even one added after the device boots.
+    privileged: true
+    volumes:
+      - "config:/config"
+    restart: always

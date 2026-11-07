@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Build and smoke-test the image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -t haac-balena:ci homeassistant
+      - name: Start (published on localhost only)
+        run: docker run -d --name haac -p 127.0.0.1:8123:8123 haac-balena:ci
+      - name: Onboard, add a demo amplifier, check its zones
+        run: python3 tests/smoke.py http://127.0.0.1:8123
+      - name: Installed Audio Control matches the pinned release
+        run: |
+          want=$(sed -n 's/^ARG AUDIO_CONTROL_VERSION=//p' homeassistant/Dockerfile)
+          docker exec haac grep -q "\"version\": \"${want}\"" \
+            /config/custom_components/audio_control/manifest.json
+          echo "Audio Control ${want} installed"
+      - name: README states the pinned versions
+        run: |
+          ac=$(sed -n 's/^ARG AUDIO_CONTROL_VERSION=//p' homeassistant/Dockerfile)
+          ha=$(sed -n 's/^FROM homeassistant\/home-assistant://p' homeassistant/Dockerfile)
+          grep -q "\`${ac}\`" README.md && grep -q "\`${ha}\`" README.md
+      - name: Container log on failure
+        if: failure()
+        run: docker logs haac 2>&1 | tail -100
