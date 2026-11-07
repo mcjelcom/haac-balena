@@ -28,6 +28,34 @@ jobs:
           docker exec haac grep -q "\"version\": \"${want}\"" \
             /config/custom_components/audio_control/manifest.json
           echo "Audio Control ${want} installed"
+      - name: Dashboard registered and filled with one card per zone
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8123/audio-control)
+          echo "panel /audio-control -> $code"; [ "$code" != 404 ]
+          for i in $(seq 1 30); do
+            n=$(docker exec haac grep -c "type: media-control" /config/dashboards/audio_control.yaml || true)
+            [ "$n" = 6 ] && break; sleep 2
+          done
+          echo "zone cards: $n"; [ "$n" = 6 ]
+          docker exec haac test -f /config/blueprints/automation/audio_control/all_zones_off_at_time.yaml
+      - name: Every icon on the dashboard exists in Home Assistant's frontend
+        run: |
+          docker exec haac python -c "
+          import glob, json, re, sys
+          names = set()
+          for f in glob.glob('/usr/local/lib/python3*/site-packages/hass_frontend/static/mdi/*.json'):
+              d = json.load(open(f)); names.update(d if isinstance(d, dict) else ())
+          used = set(re.findall(r'mdi:([a-z0-9-]+)', open('/config/dashboards/audio_control.yaml').read()))
+          missing = used - names
+          print(len(names), 'icons known; dashboard uses', sorted(used))
+          sys.exit(f'missing icons: {sorted(missing)}' if missing or not names else 0)
+          "
+      - name: Restart is idempotent and keeps the dashboard
+        run: |
+          docker restart haac
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:8123/manifest.json && break; sleep 3; done
+          [ "$(docker exec haac grep -c '^lovelace:' /config/configuration.yaml)" = 1 ]
+          [ "$(docker exec haac grep -c 'type: media-control' /config/dashboards/audio_control.yaml)" = 6 ]
       - name: README states the pinned versions
         run: |
           ac=$(sed -n 's/^ARG AUDIO_CONTROL_VERSION=//p' homeassistant/Dockerfile)

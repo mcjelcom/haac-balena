@@ -8,8 +8,8 @@ FROM homeassistant/home-assistant:2026.10.2
 # tag or a tampered download fails the build instead of shipping.
 # Bump: change both ARGs together:
 #   curl -sL https://github.com/mcjelcom/ha-audio-control/archive/refs/tags/v<X>.tar.gz | shasum -a 256
-ARG AUDIO_CONTROL_VERSION=2.0.12
-ARG AUDIO_CONTROL_SHA256=21fa62e4afa64e439a24c400d63738f28d5e257746ed943bfee8745e107bd83e
+ARG AUDIO_CONTROL_VERSION=2.0.13
+ARG AUDIO_CONTROL_SHA256=3a4d79ce455405fe201e7a14d317b29da33224df3f4f06be96b543d5e1f73da2
 
 RUN wget -q -O /tmp/ac.tgz \
       "https://github.com/mcjelcom/ha-audio-control/archive/refs/tags/v${AUDIO_CONTROL_VERSION}.tar.gz" && \
@@ -32,6 +32,9 @@ n = len(load_builtin_profiles()); print('Audio Control profiles:', n); \
 assert n >= 20, n"
 
 COPY start.sh /usr/local/bin/haac-start.sh
-RUN chmod +x /usr/local/bin/haac-start.sh
+COPY provision.py /usr/local/bin/haac-provision.py
+COPY blueprints /opt/haac/blueprints
+RUN chmod +x /usr/local/bin/haac-start.sh && \
+    test -f /opt/haac/audio_control/dashboard.yaml
 
 CMD ["/usr/local/bin/haac-start.sh"]

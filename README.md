@@ -16,13 +16,24 @@ Assistant OS install is simpler.
 | | |
 |---|---|
 | Home Assistant | `2026.10.2` (Container) |
-| Audio Control | `2.0.12` (download checked against its SHA-256) |
+| Audio Control | `2.0.13` (download checked against its SHA-256) |
+| Dashboard | **Audio Control** in the sidebar — one card per zone, All Off and Group buttons, built automatically once you add your amplifier |
+| Blueprints | Ready-made automations (all zones off at a time, scheduled zone on, volume limiter, …) under Settings → Automations → Blueprints |
 | Devices | Raspberry Pi 4 / 5 (64-bit), Raspberry Pi 3 (64-bit) |
 
 One service only. Home Assistant uses host networking so it can find devices on
 your network; it is reachable at `http://<device-ip>:8123` on your local network
 and protected by its own login. Nothing else is exposed (no SSH, no file editor).
 It runs privileged so any USB-to-RS232 adapter you plug in is visible.
+
+## Your dashboard
+
+The template adds an **Audio Control** dashboard to the sidebar. Once you add your
+amplifier it fills in by itself with one card per zone, named after your zones. It
+is regenerated when the integration restarts; to keep your own edits, delete the
+first line (`# audio_control:managed`) of `dashboards/audio_control.yaml` and it is
+never touched again. If your `configuration.yaml` already has a `lovelace:` section,
+the template leaves it alone and prints the lines to add in the log.
 
 ## Updates
 

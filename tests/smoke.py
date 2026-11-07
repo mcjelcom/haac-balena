@@ -11,6 +11,7 @@ Usage: python3 tests/smoke.py [base_url]
 from __future__ import annotations
 
 import json
+import os
 import secrets
 import sys
 import time
@@ -56,12 +57,17 @@ def main() -> None:
         {"client_id": CLIENT_ID, "name": "Smoke", "username": "smoke",
          "password": password, "language": "en"},
     )
-    token = request(
+    tokens = request(
         "/auth/token",
         {"grant_type": "authorization_code", "code": user["auth_code"],  # type: ignore[index]
          "client_id": CLIENT_ID},
         form=True,
-    )["access_token"]  # type: ignore[index]
+    )
+    token = tokens["access_token"]  # type: ignore[index]
+    if out := os.environ.get("SMOKE_TOKEN_OUT"):  # for docs screenshots only
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump({**tokens, "client_id": CLIENT_ID}, f)  # type: ignore[dict-item]
+        os.chmod(out, 0o600)
 
     # Integration loads and offers its config flow.
     flow = request(
