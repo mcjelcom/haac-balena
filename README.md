@@ -16,9 +16,9 @@ Assistant OS install is simpler.
 | | |
 |---|---|
 | Home Assistant | `2026.10.2` (Container) |
-| Audio Control | `2.0.13` (download checked against its SHA-256) |
+| Audio Control | `2.0.14` (download checked against its SHA-256) |
 | Dashboard | **Audio Control** in the sidebar — one card per zone, All Off and Group buttons, built automatically once you add your amplifier |
-| Blueprints | Ready-made automations (all zones off at a time, scheduled zone on, volume limiter, …) under Settings → Automations → Blueprints |
+| Blueprints | From the same Audio Control release: ready-made automations (all zones off at a time, scheduled zone on, volume limiter, …) under Settings → Automations → Blueprints |
 | Devices | Raspberry Pi 4 / 5 (64-bit), Raspberry Pi 3 (64-bit) |
 
 One service only. Home Assistant uses host networking so it can find devices on
