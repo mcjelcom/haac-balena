@@ -51,7 +51,8 @@ def wait_for_onboarding(timeout: float = 600) -> None:
 
 def main() -> None:
     wait_for_onboarding()
-    password = secrets.token_urlsafe(16)
+    # SMOKE_PASSWORD: only for local docs screenshots (log in from an app).
+    password = os.environ.get("SMOKE_PASSWORD") or secrets.token_urlsafe(16)
     user = request(
         "/api/onboarding/users",
         {"client_id": CLIENT_ID, "name": "Smoke", "username": "smoke",
