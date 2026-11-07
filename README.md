@@ -16,7 +16,7 @@ Assistant OS install is simpler.
 | | |
 |---|---|
 | Home Assistant | `2026.10.2` (Container) |
-| Audio Control | `2.0.11` (download checked against its SHA-256) |
+| Audio Control | `2.0.12` (download checked against its SHA-256) |
 | Devices | Raspberry Pi 4 / 5 (64-bit), Raspberry Pi 3 (64-bit) |
 
 One service only. Home Assistant uses host networking so it can find devices on

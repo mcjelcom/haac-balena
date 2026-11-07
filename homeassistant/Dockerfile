@@ -8,8 +8,8 @@ FROM homeassistant/home-assistant:2026.10.2
 # tag or a tampered download fails the build instead of shipping.
 # Bump: change both ARGs together:
 #   curl -sL https://github.com/mcjelcom/ha-audio-control/archive/refs/tags/v<X>.tar.gz | shasum -a 256
-ARG AUDIO_CONTROL_VERSION=2.0.11
-ARG AUDIO_CONTROL_SHA256=9992602767061392e282d7b0167a497fe55af5251f0cb24e0557abcdd9e11d0e
+ARG AUDIO_CONTROL_VERSION=2.0.12
+ARG AUDIO_CONTROL_SHA256=21fa62e4afa64e439a24c400d63738f28d5e257746ed943bfee8745e107bd83e
 
 RUN wget -q -O /tmp/ac.tgz \
       "https://github.com/mcjelcom/ha-audio-control/archive/refs/tags/v${AUDIO_CONTROL_VERSION}.tar.gz" && \
