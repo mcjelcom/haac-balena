@@ -5,13 +5,15 @@ version: "2.1"
 
 volumes:
   config:
+  matter-hub:
 
 services:
   homeassistant:
     build: ./homeassistant
     # Host networking: Home Assistant discovers devices on your network
     # (mDNS/SSDP) and is reached at http://<device-ip>:8123 on your LAN only.
-    # Nothing else is exposed: no SSH, file editor or other services.
+    # Nothing else is exposed (no SSH, no file editor); the optional matter-hub
+    # service below stays off unless you enable it.
     network_mode: host
     # Lets Home Assistant see any USB-to-RS232 adapter you plug in (any name,
     # including /dev/serial/by-id/...), even one added after the device boots.
@@ -19,3 +21,15 @@ services:
     volumes:
       - "config:/config"
     restart: always
+
+  matter-hub:
+    # Optional: share the zones over Matter (Google Home, Alexa, SmartThings).
+    # OFF unless the device variable HAAC_MATTER=1 is set; refuses to start without
+    # a token and a login for its web page. When on, it listens on the home
+    # network: TCP 8482 (web page, login required) and UDP 5540 (Matter, protected
+    # by the pairing code). Docs: https://haac.mcjel.com/matter/
+    build: ./matter-hub
+    network_mode: host
+    restart: always
+    volumes:
+      - "matter-hub:/data"

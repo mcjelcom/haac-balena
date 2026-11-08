@@ -21,7 +21,7 @@ jobs:
       - name: Start (published on localhost only)
         run: docker run -d --name haac -p 127.0.0.1:8123:8123 haac-balena:ci
       - name: Onboard, add a demo amplifier, check its zones
-        run: python3 tests/smoke.py http://127.0.0.1:8123
+        run: SMOKE_TOKEN_OUT=/tmp/ha_tokens.json python3 tests/smoke.py http://127.0.0.1:8123
       - name: Installed Audio Control matches the pinned release
         run: |
           want=$(sed -n 's/^ARG AUDIO_CONTROL_VERSION=//p' homeassistant/Dockerfile)
@@ -61,6 +61,38 @@ jobs:
           ac=$(sed -n 's/^ARG AUDIO_CONTROL_VERSION=//p' homeassistant/Dockerfile)
           ha=$(sed -n 's/^FROM homeassistant\/home-assistant://p' homeassistant/Dockerfile)
           grep -q "\`${ac}\`" README.md && grep -q "\`${ha}\`" README.md
+      - name: Matter Hub service stays off by default, and closed when misconfigured
+        run: |
+          docker build -t haac-matter:ci matter-hub
+          probe() { docker exec haac python -c "import socket;s=socket.socket();s.settimeout(1);print('OPEN' if s.connect_ex(('127.0.0.1',8482))==0 else 'closed')"; }
+          docker run -d --name hm --network container:haac haac-matter:ci; sleep 8
+          docker logs hm 2>&1 | grep -q "off -- set the device variable HAAC_MATTER=1"; [ "$(probe)" = closed ]; docker rm -f hm
+          docker run -d --name hm --network container:haac -e HAAC_MATTER=1 -e HAMH_HOME_ASSISTANT_ACCESS_TOKEN=x \
+            -e HAMH_HTTP_AUTH_USERNAME=admin -e HAMH_HTTP_AUTH_PASSWORD=short haac-matter:ci; sleep 8
+          docker logs hm 2>&1 | grep -q "NOT STARTING"; [ "$(probe)" = closed ]; docker rm -f hm
+      - name: Matter Hub enabled -- web page and API require the login
+        run: |
+          AT=$(python3 -c "import json;print(json.load(open('/tmp/ha_tokens.json'))['access_token'])")
+          LLAT=$(docker exec -e AT="$AT" haac python -c "
+          import asyncio, os, aiohttp
+          async def m():
+              async with aiohttp.ClientSession() as s, s.ws_connect('http://127.0.0.1:8123/api/websocket') as ws:
+                  await ws.receive_json(); await ws.send_json({'type':'auth','access_token':os.environ['AT']}); await ws.receive_json()
+                  await ws.send_json({'id':1,'type':'auth/long_lived_access_token','client_name':'ci','lifespan':1})
+                  print((await ws.receive_json())['result'])
+          asyncio.run(m())")
+          docker run -d --name hm --network container:haac -e HAAC_MATTER=1 -e HAMH_HOME_ASSISTANT_ACCESS_TOKEN="$LLAT" \
+            -e HAMH_HTTP_AUTH_USERNAME=admin -e HAMH_HTTP_AUTH_PASSWORD=ci-long-password haac-matter:ci
+          for i in $(seq 1 60); do docker logs hm 2>&1 | grep -q "listening on port 8482" && break; sleep 2; done
+          docker exec haac python -c "
+          import urllib.request, urllib.error, base64, sys
+          def g(a):
+              h={'Authorization':'Basic '+base64.b64encode(a.encode()).decode()} if a else {}
+              try: return urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8482/api/matter/bridges',headers=h),timeout=5).status
+              except urllib.error.HTTPError as e: return e.code
+          r=(g(None), g('admin:wrong'), g('admin:ci-long-password')); print('anonymous, wrong, login:', r)
+          sys.exit(0 if r==(401,401,200) else 1)"
+          docker rm -f hm
       - name: Container log on failure
         if: failure()
         run: docker logs haac 2>&1 | tail -100
