@@ -61,6 +61,23 @@ jobs:
           ac=$(sed -n 's/^ARG AUDIO_CONTROL_VERSION=//p' homeassistant/Dockerfile)
           ha=$(sed -n 's/^FROM homeassistant\/home-assistant://p' homeassistant/Dockerfile)
           grep -q "\`${ac}\`" README.md && grep -q "\`${ha}\`" README.md
+      - name: Alexa (as used by Home Assistant Cloud) -- discovery and every command
+        run: |
+          AT=$(python3 -c "import json;print(json.load(open('/tmp/ha_tokens.json'))['access_token'])")
+          python3 - "$AT" <<'PY'
+          import json, sys, time, urllib.request
+          H = {"Authorization": "Bearer " + sys.argv[1], "Content-Type": "application/json"}
+          def api(p, d=None):
+              return json.loads(urllib.request.urlopen(urllib.request.Request("http://127.0.0.1:8123" + p, json.dumps(d).encode() if d is not None else None, H), timeout=60).read() or b"null")
+          eid = next(e["entry_id"] for e in api("/api/config/config_entries/entry") if e["domain"] == "audio_control")
+          f = api("/api/config/config_entries/options/flow", {"handler": eid})
+          api(f"/api/config/config_entries/options/flow/{f['flow_id']}", {"source_1": "TV", "source_2": "CD", "source_3": "Tuner"})
+          time.sleep(5)
+          PY
+          docker exec haac sh -c 'printf "\nalexa:\n  smart_home:\n" >> /config/configuration.yaml'
+          docker restart haac
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:8123/manifest.json && break; sleep 3; done; sleep 10
+          python3 tests/alexa_check.py http://127.0.0.1:8123 /tmp/ha_tokens.json
       - name: Matter Hub service stays off by default, and closed when misconfigured
         run: |
           docker build -t haac-matter:ci matter-hub
